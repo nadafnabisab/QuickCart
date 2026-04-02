@@ -2,7 +2,7 @@
 
 **QuickCart** is a full-featured Point-of-Sale, CRM, and Inventory Management web app built with Python and Streamlit.
 
-> Built by **Nabisab Nadaf** as a college project · v1.0.0
+> Built by Nabisab Nadaf as an individual project · v1.0.0
 
 ---
 
@@ -118,4 +118,4 @@ GitHub: [@nabisab](https://github.com/nabisab)
 
 ---
 
-*Made with ❤️ as a college project*
+*Made with ❤️ as this project represents my first independent hands-on implementation in data-related development.*
