@@ -563,7 +563,9 @@ elif page == "💳 POS & Billing":
             a,b,c,d,e = st.columns([4,2,2,2,1])
             a.write(f"**{row['item']}**")
             b.write(money(row["unit_price"]))
-            stock_val = int(pd.to_numeric(row["stock"], errors="coerce") or 0)
+            
+            val = pd.to_numeric(row["stock"], errors="coerce")
+            stock_val = int(val) if pd.notna(val) else 0
             c.write(f"Stock: {stock_val}")
             if stock_val > 0:
                 qty = d.number_input("Qty", 1, stock_val, 1, key=f"qty_{row['item']}")
