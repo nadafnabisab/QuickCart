@@ -743,32 +743,36 @@ elif page == "📦 Inventory":
                     save_csv(ci, INVENTORY_FILE); st.success("✅ Item added."); reload()
 
     with tab_edit:
-    ci = load_csv(INVENTORY_FILE, INV_COLS)
-    sel = st.selectbox("Select item", [""] + ci["item"].dropna().astype(str).tolist())
+        ci = load_csv(INVENTORY_FILE, INV_COLS)
+        sel = st.selectbox("Select item", [""] + ci["item"].dropna().astype(str).tolist())
+        
+        if sel:
+            filtered = ci[ci["item"].astype(str).str.strip() == str(sel).strip()]
+            
+            if not filtered.empty:
+                row = filtered.iloc[0]
+            else:
+                st.error(f"Item '{sel}' not found in inventory")
+                st.stop()
 
-    if sel:
-        filtered = ci[ci["item"].astype(str).str.strip() == str(sel).strip()]
+            ec1, ec2, ec3 = st.columns(3)
+            nc = ec1.number_input("Cost Price", value=float(pd.to_numeric(row["cost_price"], errors="coerce") or 0), step=0.5)
+            np_ = ec2.number_input("Selling Price", value=float(pd.to_numeric(row["unit_price"], errors="coerce") or 0), step=0.5)
+            ns = ec3.number_input("Stock", value=int(pd.to_numeric(row["stock"], errors="coerce") or 0))
+            nr = st.number_input("Reorder Level", value=int(pd.to_numeric(row["reorder_level"], errors="coerce") or 0))
 
-        if not filtered.empty:
-            row = filtered.iloc[0]
-        else:
-            st.error(f"Item '{sel}' not found in inventory")
-            st.stop()
+            sc1, sc2 = st.columns(2)
+            if sc1.button("💾 Save"):
+                ci.loc[ci["item"] == sel, ["cost_price", "unit_price", "stock", "reorder_level"]] = [nc, np_, ns, nr]
+                save_csv(ci, INVENTORY_FILE)
+                st.success("Updated.")
+                reload()
 
-        ec1,ec2,ec3 = st.columns(3)
-        nc = ec1.number_input("Cost Price",   value=float(pd.to_numeric(row["cost_price"],  errors="coerce") or 0), step=0.5)
-        np_ = ec2.number_input("Selling Price", value=float(pd.to_numeric(row["unit_price"], errors="coerce") or 0), step=0.5)
-        ns = ec3.number_input("Stock",         value=int(pd.to_numeric(row["stock"],        errors="coerce") or 0))
-        nr = st.number_input("Reorder Level",  value=int(pd.to_numeric(row["reorder_level"],errors="coerce") or 0))
-
-        sc1,sc2 = st.columns(2)
-        if sc1.button("💾 Save"):
-            ci.loc[ci["item"]==sel,["cost_price","unit_price","stock","reorder_level"]] = [nc,np_,ns,nr]
-            save_csv(ci,INVENTORY_FILE); st.success("Updated."); reload()
-
-        if sc2.button("🗑️ Delete"):
-            ci = ci[ci["item"]!=sel]; save_csv(ci,INVENTORY_FILE); st.success("Deleted."); reload()
-
+            if sc2.button("🗑️ Delete"):
+                ci = ci[ci["item"] != sel]
+                save_csv(ci, INVENTORY_FILE)
+                st.success("Deleted.")
+                reload()
     with tab_bulk:
         st.info("Upload CSV with columns: item, category, cost_price, unit_price, stock, expiry, supplier, reorder_level, barcode")
         up = st.file_uploader("Upload CSV", type="csv")
